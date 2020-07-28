@@ -1,0 +1,67 @@
+Sub EmployeeHelpdeskNewTicket()
+Dim helpdeskaddress As String
+Dim ObjMail As Outlook.MailItem
+Dim strbody As String
+Dim oldmsg As String
+Dim senderaddress As String
+Dim addresstype As Integer
+Dim CCPerson As String
+Dim Inx As Integer
+Dim SelectedItems As Outlook.Selection
+
+' Set this variable as your helpdesk e-mail address
+helpdeskaddress = "saif.ansari@mt.com"
+Set SelectedItems = ActiveExplorer.Selection
+Set objItem = GetCurrentItem()
+Set ObjMail = objItem
+For Inx = 1 To SelectedItems.Count
+    Set NewItem = SelectedItems.Item(Inx).Forward
+    
+    With SelectedItems.Item(Inx)
+With .Attachments
+      End With
+      With .Recipients
+      End With
+' Sender Email Address
+senderaddress = SelectedItems.Item(Inx).SenderName
+CCPerson = SelectedItems.Item(Inx).CC
+
+
+'adds the senders e-mail address as the created by object for the ticket and appends the message body
+strbody = "#Created by - " & senderaddress & vbNewLine & "#CC Person - " & CCPerson & vbNewLine & vbNewLine & NewItem.Body
+'strbody = "#CCPerson " & CCPerson & vbNewLine & vbNewLine & objItem.Body
+
+'NewItem.SentOnBehalfOfName = "GBSI-BPA@mt.com"
+NewItem.To = helpdeskaddress
+NewItem.Subject = NewItem.Subject
+NewItem.Body = NewItem.Body
+
+
+'Automatically Send the ticket
+NewItem.Send
+'NewItem.Display
+End With
+Next
+Set NewItem = Nothing
+Set SelectedItems = Nothing
+End Sub
+
+Function GetCurrentItem() As Object
+Dim objApp As Outlook.Application
+Set objApp = Application
+On Error Resume Next
+Select Case True
+  Case IsExplorer(Application.ActiveWindow)
+    Set GetCurrentItem = ActiveExplorer.Selection.Item(1)
+  Case IsInspector(Application.ActiveWindow)
+    Set GetCurrentItem = ActiveInspector.CurrentItem
+Case Else
+End Select
+End Function
+
+Function IsExplorer(itm As Object) As Boolean
+  IsExplorer = (TypeName(itm) = "Explorer")
+End Function
+Function IsInspector(itm As Object) As Boolean
+  IsInspector = (TypeName(itm) = "Inspector")
+End Function
